@@ -23,7 +23,8 @@ Installation
 -------------
 Author
 -------------
-Created by `Towhid Nategheian`_ at QA-Themes_
+Created by `Towhid Nategheian`_ at QA-Themes_.
+
 .. _Towhid Nategheian: http://tohid.ir.tc
 .. _QA-Themes: http://QA-Themes.com
 ----------
