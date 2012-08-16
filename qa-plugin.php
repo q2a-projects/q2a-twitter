@@ -9,7 +9,7 @@
 	Plugin Author: QA-Themes
 	Plugin Author URI: http://www.qa-themes.com/
 	Plugin License: GPLv2
-	Plugin Minimum Question2Answer Version: 1.3
+	Plugin Minimum Question2Answer Version:
 	Plugin Update Check URI:
 */
 

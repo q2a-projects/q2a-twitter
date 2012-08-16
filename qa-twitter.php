@@ -1,7 +1,5 @@
 <?php
-
 /*
-	
 	Question2Answer (c) Gideon Greenspan
 	http://www.question2answer.org/
 
@@ -11,6 +9,11 @@
 	GNU General Public License for more details.
 
 	More about this license: http://www.question2answer.org/license.php
+	
+*/
+
+/*
+Twitter Recent posts Widget
 */
 
 	class qa_twitter {
