@@ -15,17 +15,17 @@ Features
 ------------
 Installation
 ------------
+
 #. Download and extract the files to your plugins folder (e.g. `qa-plugins/q2a-twitter-widget`).
-#. In Q2A go to **Admin > Plugins** and fill the form on "Twitter Widget" section and click "save changes".
+#. In Q2A go to **Admin > Plugins** and fill the form on "Twitter Widget" section and click '**save changes**'.
 #. In Q2A go to **Admin > Layout** add widget anywhrere you want.
 
 -------------
 Author
 -------------
-Created by Towhid Nategheian_.
-at http://QA-Themes.com
-.. _Towhid Nategheian: http://tohid.ir.tc/
-
+Created by `Towhid Nategheian`_ at QA-Themes_
+.. _Towhid Nategheian: http://tohid.ir.tc
+.. _QA-Themes: http://QA-Themes.com
 ----------
 Disclaimer
 ----------
@@ -34,7 +34,7 @@ This is **beta code**. It worked fine for me, but may not work as you expect. if
 -------
 copyright
 -------
-this plugin and all it/'s source code is Copylefted_.
+this plugin and all it's source code is Copylefted_.
 
 .. _Copylefted: http://en.wikipedia.org/wiki/Copyleft
 
