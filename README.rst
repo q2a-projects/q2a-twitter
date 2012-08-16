@@ -4,7 +4,7 @@ Twitter Widget Plugin
 -----------
 Description
 -----------
-Twitter Widget Plugin for **Question2Answer**
+Twitter Widget Plugin for **Question2Answer**.
 
 --------
 Features
@@ -20,15 +20,10 @@ Installation
 #. In Q2A go to **Admin > Plugins** and fill the form on "Twitter Widget" section and click '**save changes**'.
 #. In Q2A go to **Admin > Layout** add widget anywhrere you want.
 
-.. _Question2Answer: http://www.question2answer.org/install.php
-.. _git: http://git-scm.com/
-.. _github:
-.. _project page: https://github.com/Towhidn/q2a-twitter
-
 -------------
 Author
 -------------
-Created by Towhid Nategheian
+Created by `Towhid Nategheian`_
 http://QA-Themes.com
 ----------
 Disclaimer
@@ -38,7 +33,7 @@ This is **beta code**. It worked fine for me, but may not work as you expect. if
 -------
 copyright
 -------
-All code herein is Copylefted_.
+this plugin and all it's source code is Copylefted_.
 
 .. _Copylefted: http://en.wikipedia.org/wiki/Copyleft
 
