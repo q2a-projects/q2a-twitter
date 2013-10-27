@@ -1,16 +1,17 @@
 ==============================
-Twitter Widget Plugin
+Q2A Twitter Widget Plugin
 ==============================
 -----------
 Description
 -----------
-Twitter Widget Plugin for **Question2Answer**.
+this plugin can show any users recent tweets as a widget in your Question2Answer website.
 
 --------
 Features
 --------
 - add anywhere in your layout
 - set your ID, number of recent tweets, and ... in plugin option page
+- now it's using Twitter API version 1.1
 
 ------------
 Installation
@@ -25,12 +26,12 @@ Author
 -------------
 Created by `Towhid Nategheian`_ at QA-Themes_.
 
-.. _Towhid Nategheian: http://tohid.ir.tc
+.. _Towhid Nategheian: http://TowhidN.com
 .. _QA-Themes: http://QA-Themes.com
 ----------
 Disclaimer
 ----------
-This is **beta code**. It worked fine for me, but may not work as you expect. if any problems accour get help on http://www.question2answer.org/qa/
+This is **beta code**. It worked fine for me, but may not work as you expect. if any problems accour get help on http://www.question2answer.org/qa/ or submit the issue here in github.
 
 -------
 copyright

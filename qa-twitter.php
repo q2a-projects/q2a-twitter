@@ -18,6 +18,15 @@ Twitter Recent posts Widget
 
 	class qa_twitter {
 	
+		var $directory;
+		var $urltoroot;
+		var $provider;
+
+		function load_module($directory, $urltoroot, $type, $provider) {
+			$this->directory = $directory;
+			$this->urltoroot = $urltoroot;
+			$this->provider = $provider;
+		}	
 		function option_default($option)
 		{
 			if ($option=='qa-twitter-id')
@@ -36,8 +45,11 @@ Twitter Recent posts Widget
 			if (qa_clicked('qa_twitter_save_button')) {
 				qa_opt('qa_twitter_id', qa_post_text('qa_twitter_id_field'));
 				qa_opt('qa_twitter_t_count', (int)qa_post_text('qa_twitter_t_count_field'));
-				qa_opt('qa_twitter_includereplies', (int)qa_post_text('qa_twitter_includereplies_field'));
 				qa_opt('qa_twitter_title', qa_post_text('qa_twitter_title_field'));
+				qa_opt('qa_twitter_ck', qa_post_text('qa_twitter_ck_field'));
+				qa_opt('qa_twitter_cs', qa_post_text('qa_twitter_cs_field'));
+				qa_opt('qa_twitter_at', qa_post_text('qa_twitter_at_field'));
+				qa_opt('qa_twitter_ts', qa_post_text('qa_twitter_ts_field'));
 				$saved=true;
 			}
 			
@@ -56,7 +68,7 @@ Twitter Recent posts Widget
 						'label' => 'Widget Title:',
 						'type' => 'string',
 						'value' => qa_opt('qa_twitter_title'),
-						'suffix' => 'Recent Posts',
+						'suffix' => 'you can leave it empty',
 						'tags' => 'NAME="qa_twitter_title_field"',
 					),	
 					array(
@@ -66,13 +78,31 @@ Twitter Recent posts Widget
 						'value' => (int)qa_opt('qa_twitter_t_count'),
 						'tags' => 'NAME="qa_twitter_t_count_field"',
 					),
-					
 					array(
-						'label' => 'Replys will be included',
-						'type' => 'checkbox',
-						'value' => qa_opt('qa_twitter_includereplies'),
-						'tags' => 'NAME="qa_twitter_includereplies_field"',
+						'label' => 'Consumer key:',
+						'type' => 'string',
+						'value' => qa_opt('qa_twitter_ck'),
+						'tags' => 'NAME="qa_twitter_ck_field"',
+					),	
+					array(
+						'label' => 'Consumer secret:',
+						'type' => 'string',
+						'value' => qa_opt('qa_twitter_cs'),
+						'tags' => 'NAME="qa_twitter_cs_field"',
+					),	
+					array(
+						'label' => 'Access token:',
+						'type' => 'string',
+						'value' => qa_opt('qa_twitter_at'),
+						'tags' => 'NAME="qa_twitter_at_field"',
 					),
+					array(
+						'label' => 'Access token secret:',
+						'type' => 'string',
+						'value' => qa_opt('qa_twitter_ts'),
+						'tags' => 'NAME="qa_twitter_ts_field"',
+						'error' => $this->twitter_api_error_html(),
+					),	
 				),
 				'buttons' => array(
 					array(
@@ -83,6 +113,10 @@ Twitter Recent posts Widget
 			);
 		}
 
+		function twitter_api_error_html()
+		{
+			return 'To use twitter API you must register your application. to do this visit <a href="https://dev.twitter.com/">twitter development Page</a> and log in with your Twitter credential. then visit <a href="https://dev.twitter.com/apps/">My applications</a> and creat your application and fill these fields from your application API detail. <br /> if these fields are set correctly and your application has permission to work with this domain then you can add Twitter Widget in "Admin > Layouts".'; 
+		}
 		
 		function allow_template($template)
 		{
@@ -121,87 +155,65 @@ Twitter Recent posts Widget
 
 		function output_widget($region, $place, $themeobject, $template, $request, $qa_content)
 		{
-			$twitterID = qa_opt('qa_twitter_id');
-			$includeReplies = qa_opt('qa_twitter_includereplies');
-			$numtweets=(int)qa_opt('qa_twitter_t_count');
+			$user = qa_opt('qa_twitter_id');
+			$count=(int)qa_opt('qa_twitter_t_count');
 			$title=qa_opt('qa_twitter_title');
 
 			$themeobject->output('<DIV class="qa-tweeter-widget">');
 				$themeobject->output('<H2 class="qa-tweeter-header">'.$title.'</H2>');
-				get_tweets($twitterID,$numtweets,"D jS M y H:i",$includeReplies);
-			$themeobject->output('</DIV>');
+				
+			error_reporting(E_ALL);
+			ini_set('display_errors', '1'); 
+			//require_once('/home/sectalk/public_html/qa-plugin/q2a-twitter/TwitterAPIExchange.php');
+			require_once $this->directory . 'TwitterAPIExchange.php';
+			// Setting our Authentication Variables that we got after creating an application
+			$settings = array(
+				'oauth_access_token' => qa_opt('qa_twitter_at'),
+				'oauth_access_token_secret' => qa_opt('qa_twitter_ts'),
+				'consumer_key' => qa_opt('qa_twitter_ck'),
+				'consumer_secret' => qa_opt('qa_twitter_cs')
+			);
+
+			$url = "https://api.twitter.com/1.1/statuses/user_timeline.json";
+			$requestMethod = "GET";
+
+			$getfield = "?screen_name=$user&count=$count";
+			$twitter = new TwitterAPIExchange($settings);
+			$string = json_decode($twitter->setGetfield($getfield)
+				->buildOauth($url, $requestMethod)
+					->performRequest(),$assoc = TRUE);
+			echo '<ul class="qa-tweeter-list">';
+			foreach($string as $items)
+			{
+				// links
+				$items['text'] = preg_replace(
+					'@(https?://([-\w\.]+)+(/([\w/_\.]*(\?\S+)?(#\S+)?)?)?)@',
+					 '<a href="$1">$1</a>',
+					$items['text']);
+				//users
+				$items['text'] = preg_replace(
+					'/@(\w+)/',
+					'<a href="http://twitter.com/$1">@$1</a>',
+					$items['text']);	
+				// hashtags
+				$items['text'] = preg_replace(
+					'/\s+#(\w+)/',
+					' <a href="http://search.twitter.com/search?q=%23$1">#$1</a>',
+					$items['text']);
+					
+				//echo "Time and Date of Tweet: ".$items['created_at']."<br />";
+				echo '<li class="qa-tweeter-item">'. $items['text'].'</li>';
+				//echo "Tweeted by: ". $items['user']['name']."<br />";
+				//echo "Screen name: ". $items['user']['screen_name']."<br />";
+				//echo "Followers: ". $items['user']['followers_count']."<br />";
+				//echo "Friends: ". $items['user']['friends_count']."<br />";
+				//echo "Listed: ". $items['user']['listed_count']."<br /><hr />";
+			}
+			echo '</ul>';
+
+			 $themeobject->output('</DIV>');
 		}
 	
-	}
-	function twitter_status($twitter_id) { 
-		$c = curl_init();
-		curl_setopt($c, CURLOPT_URL,
-			"http://twitter.com/statuses/user_timeline/$twitter_id.xml");
-		curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($c, CURLOPT_CONNECTTIMEOUT, 3);
-		curl_setopt($c, CURLOPT_TIMEOUT, 5);
-		$response = curl_exec($c);
-		$responseInfo = curl_getinfo($c);
-		curl_close($c);
-		if (intval($responseInfo['http_code']) == 200) {
-			if (class_exists('SimpleXMLElement')) {
-				$xml = @new SimpleXMLElement($response);
-				return $xml;
-			} else {
-				return $response;
-			}
-		} else {
-			return false;
-		}
-	}
-	 
-	/** Method to add hyperlink html tags to any urls, twitter ids or
-		hashtags in the tweet */
-	function processLinks($text) {
-		$text = utf8_decode( $text );
-		$text = preg_replace('@(https?://([-\w\.]+)+(d+)?(/([\w/_\.]*(\?\S+)?)?)?)@',
-								'<a href="$1">$1</a>',  $text );
-		$text = preg_replace("#(^|[\n ])@([^ \"\t\n\r<]*)#ise",
-								"'\\1<a href=\"http://www.twitter.com/\\2\" >@\\2</a>'", $text); 
-		$text = preg_replace("#(^|[\n ])\#([^ \"\t\n\r<]*)#ise",
-								"'\\1<a href=\"http://hashtags.org/search?query=\\2\" >#\\2</a>'", $text);
-		return $text;
-	}
-	 
-	/** Main method to retrieve the tweets and return html for display */
-	function get_tweets($twitter_id,
-						$nooftweets=6,
-						$dateFormat="D jS M y H:i",
-						$includeReplies=false,
-						$dateTimeZone="Europe/London",
-						$beforeTweetsHtml="<ul class=\"qa-tweeter-list\"  style=\"list-style-position: inside; padding: 0px;\">",
-						$tweetStartHtml="<li class=\"qa-tweeter-items\"><span class=\"qa-tweeter-item-content\">",
-						$tweetMiddleHtml="</span><br/><span class=\"qa-tweeter-details\">",
-						$tweetEndHtml="</span></li>",
-						$afterTweetsHtml="</ul>") {
-	 
-		date_default_timezone_set($dateTimeZone);
-		if ( $twitter_xml = twitter_status($twitter_id) ) {
-			$result = $beforeTweetsHtml;
-			foreach ($twitter_xml->status as $key => $status) {
-				if ($includeReplies == true |
-						substr_count($status->text,"@") == 0 |
-						strpos($status->text,"@") != 0) {
-					$message = processLinks($status->text);
-					$result.=$tweetStartHtml.$message.$tweetMiddleHtml.
-								date($dateFormat,strtotime($status->created_at)).$tweetEndHtml;
-					@++$i;
-					if ($i == $nooftweets) break;
-					}
-				}
-				$result.=$afterTweetsHtml;
-		}
-		else {
-			@$result.= $beforeTweetsHtml.
-						"<li id='tweet'>Twitter seems to be unavailable at the moment</li>".
-						$afterTweetsHtml;
-		}  
-		echo $result;
 	}
 
 /*
