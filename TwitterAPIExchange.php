@@ -1,5 +1,8 @@
 <?php
-
+	if (!defined('QA_VERSION')) { // don't allow this page to be requested directly from browser
+		header('Location: ../../');
+		exit;
+	}
 /**
  * Twitter-API-PHP : Simple PHP wrapper for the v1.1 API
  * 

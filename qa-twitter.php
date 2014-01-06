@@ -151,20 +151,12 @@ Twitter Recent posts Widget
 		{
 			return ($region=='side');
 		}
-		
-
-		function output_widget($region, $place, $themeobject, $template, $request, $qa_content)
+		function get_tweets()
 		{
 			$user = qa_opt('qa_twitter_id');
 			$count=(int)qa_opt('qa_twitter_t_count');
 			$title=qa_opt('qa_twitter_title');
-
-			$themeobject->output('<DIV class="qa-tweeter-widget">');
-				$themeobject->output('<H2 class="qa-tweeter-header">'.$title.'</H2>');
-				
-			error_reporting(E_ALL);
-			ini_set('display_errors', '1'); 
-			//require_once('/home/sectalk/public_html/qa-plugin/q2a-twitter/TwitterAPIExchange.php');
+			
 			require_once $this->directory . 'TwitterAPIExchange.php';
 			// Setting our Authentication Variables that we got after creating an application
 			$settings = array(
@@ -179,11 +171,45 @@ Twitter Recent posts Widget
 
 			$getfield = "?screen_name=$user&count=$count";
 			$twitter = new TwitterAPIExchange($settings);
-			$string = json_decode($twitter->setGetfield($getfield)
+			$tweets = json_decode($twitter->setGetfield($getfield)
 				->buildOauth($url, $requestMethod)
 					->performRequest(),$assoc = TRUE);
+			return $tweets;
+
+		}
+		
+
+		function output_widget($region, $place, $themeobject, $template, $request, $qa_content)
+		{
+			$user = qa_opt('qa_twitter_id');
+			$count=(int)qa_opt('qa_twitter_t_count');
+			$title=qa_opt('qa_twitter_title');
+
+			$themeobject->output('<DIV class="qa-tweeter-widget">');
+				$themeobject->output('<H2 class="qa-tweeter-header">'.$title.'</H2>');
+				
+			$file = $this->directory . 'cache/' . $user ."-tweets.txt";
+			$modified = @filemtime( $file );
+			$now = time();
+			$interval = 3600; // 1 hour
+			// Cache File
+			if ( empty($modified) || ( ( $now - $modified ) > $interval ) ) {
+				// read live tweets
+				$tweets=$this->get_tweets();
+				if ( $tweets ) {
+				// cache tweets
+					$cache = fopen( $file, 'w' );
+					//fwrite( $cache, $tweets );
+					fwrite($cache, json_encode($tweets));
+					fclose( $cache );
+				}
+			}else{
+				//read tweets from cache
+				$tweets = json_decode(file_get_contents( $file ),$assoc = TRUE);
+			}
+
 			echo '<ul class="qa-tweeter-list">';
-			foreach($string as $items)
+			foreach($tweets as $items)
 			{
 				// links
 				$items['text'] = preg_replace(
